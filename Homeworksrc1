@@ -1,0 +1,1763 @@
+package Translator1;
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+
+/**
+ *
+ * @author efe
+ */
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import java.util.Map;
+
+public class Jframe1 extends javax.swing.JFrame {
+    
+    /*private static boolean search(String line, BufferedReader br2, String keyword) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }*/
+    public void formdictname(String base, String target){
+        String dictname = base+"-"+target;
+        System.out.println(dictname);
+        if(dictname.equals("tur-ell")){
+            jTextField10.setText("Doesn't exist");
+        }
+        else{
+        jTextField10.setText(dictname);
+        }
+        
+       
+    }
+    
+ 
+   /*public static String[] searchWord(String searchWord, String dict) {     
+        try {
+            File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputFile);
+            doc.getDocumentElement().normalize();
+            NodeList entryList = doc.getElementsByTagName("entry");
+            String[] results = new String[entryList.getLength()];
+            String[] synonyms = new String[entryList.getLength()]; // create a new array for synonyms
+            int count = 0;
+            int synCount = 0; // initialize synonym count to 0
+            for (int i = 0; i < entryList.getLength(); i++) {
+                Node entryNode = entryList.item(i);
+                if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element entryElement = (Element) entryNode;
+                    NodeList formList = entryElement.getElementsByTagName("form");
+                    for (int j = 0; j < formList.getLength(); j++) {
+                        Node formNode = formList.item(j);
+                        if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                            Element formElement = (Element) formNode;
+                            String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                            if (formWord.equalsIgnoreCase(searchWord)) {
+                                NodeList senseList = entryElement.getElementsByTagName("sense");
+                                for (int k = 0; k < senseList.getLength(); k++) {
+                                    Node senseNode = senseList.item(k);
+                                    if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element senseElement = (Element) senseNode;
+                                        NodeList citList = senseElement.getElementsByTagName("cit");
+                                        for (int l = 0; l < citList.getLength(); l++) {
+                                            Node citNode = citList.item(l);
+                                            if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                                Element citElement = (Element) citNode;
+                                                String citType = citElement.getAttribute("type");
+                                                if (citType.equals("trans")) {
+                                                    String transWord = citElement.getElementsByTagName("quote").item(0).getTextContent();
+                                                    if (count == 0) { // add the first result or synonym found to the results array
+                                                        results[count] = transWord;
+                                                        count++;
+                                                    } else if (!transWord.equalsIgnoreCase(results[count - 1])) { // check if the current word is not already added to the results array
+                                                        if (synCount == 0) { // add the first synonym found to the synonyms array
+                                                            synonyms[synCount] = transWord;
+                                                            synCount++;
+                                                        } else if (!transWord.equalsIgnoreCase(synonyms[synCount - 1])) { // check if the current word is not already added to the synonyms array
+                                                            synonyms[synCount] = transWord;
+                                                            synCount++;
+                                                        }
+                                                    }}}}}}}}}}}
+            return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }*/
+    public static String[] searchWord(String searchWord, String dict) {
+       
+        try {
+            File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+             if (!inputFile.exists()) {
+            JOptionPane.showMessageDialog(null, "Dictionary not found, try Cross Search");
+            return null;
+            }
+            System.out.println("looking for " + "src\\main\\resources\\" + dict + ".tei");         
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputFile);
+            doc.getDocumentElement().normalize();
+            NodeList entryList = doc.getElementsByTagName("entry");
+            String[] results = new String[entryList.getLength()];
+            int count = 0;
+            for (int i = 0; i < entryList.getLength(); i++) {
+                Node entryNode = entryList.item(i);
+                if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element entryElement = (Element) entryNode;
+                    NodeList formList = entryElement.getElementsByTagName("form");
+                    for (int j = 0; j < formList.getLength(); j++) {
+                        Node formNode = formList.item(j);
+                        if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                            Element formElement = (Element) formNode;
+                            String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                            if (formWord.equalsIgnoreCase(searchWord)) {
+                                NodeList senseList = entryElement.getElementsByTagName("sense");
+                                for (int k = 0; k < senseList.getLength(); k++) {
+                                    Node senseNode = senseList.item(k);
+                                    if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element senseElement = (Element) senseNode;
+                                        NodeList citList = senseElement.getElementsByTagName("cit");
+                                        for (int l = 0; l < citList.getLength(); l++) {
+                                            Node citNode = citList.item(l);
+                                            if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                                Element citElement = (Element) citNode;
+                                                String citType = citElement.getAttribute("type");
+                                                if (citType.equals("trans")) {
+                                                    String transWord = citElement.getElementsByTagName("quote").item(0).getTextContent();
+                                                    results[count] = transWord;
+                                                    count++;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /*public static List<String> searchSynonyms(String searchWord, String dict) {
+    List<String> synonyms = new ArrayList<>();
+    try {
+        File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+            if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element entryElement = (Element) entryNode;
+                NodeList formList = entryElement.getElementsByTagName("form");
+                for (int j = 0; j < formList.getLength(); j++) {
+                    Node formNode = formList.item(j);
+                    if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element formElement = (Element) formNode;
+                        String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                        if (formWord.equalsIgnoreCase(searchWord)) {
+                            NodeList senseList = entryElement.getElementsByTagName("sense");
+                            for (int k = 0; k < senseList.getLength(); k++) {
+                                Node senseNode = senseList.item(k);
+                                if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element senseElement = (Element) senseNode;
+                                    NodeList citList = senseElement.getElementsByTagName("cit");
+                                    for (int l = 0; l < citList.getLength(); l++) {
+                                        Node citNode = citList.item(l);
+                                        if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                            Element citElement = (Element) citNode;
+                                            String citType = citElement.getAttribute("type");
+                                            if (citType.equals("synonym")) {
+                                                String synWord = citElement.getElementsByTagName("quote").item(0).getTextContent();
+                                                synonyms.add(synWord);
+                                                
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return synonyms;
+}*/
+   /* public static String[] searchSynonyms(String searchWord, String dict) {
+
+    try {
+        File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+        List<String> synonymList = new ArrayList<>();
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+            if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element entryElement = (Element) entryNode;
+                NodeList formList = entryElement.getElementsByTagName("form");
+                for (int j = 0; j < formList.getLength(); j++) {
+                    Node formNode = formList.item(j);
+                    if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element formElement = (Element) formNode;
+                        String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                        if (formWord.equalsIgnoreCase(searchWord)) {
+                            NodeList senseList = entryElement.getElementsByTagName("sense");
+                            for (int k = 0; k < senseList.getLength(); k++) {
+                                Node senseNode = senseList.item(k);
+                                if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element senseElement = (Element) senseNode;
+                                    NodeList citList = senseElement.getElementsByTagName("cit");
+                                    for (int l = 0; l < citList.getLength(); l++) {
+                                        Node citNode = citList.item(l);
+                                        if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                            Element citElement = (Element) citNode;
+                                            String citType = citElement.getAttribute("type");
+                                            if (citType.equals("trans")) {
+                                                String transWord = citElement.getElementsByTagName("quote").item(0).getTextContent();
+                                                if (!transWord.equalsIgnoreCase(searchWord)) {
+                                                    synonymList.add(transWord);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        String[] synonyms = synonymList.toArray(new String[synonymList.size()]);
+        return synonyms;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+*/
+   /*public static String[] searchSynonyms(String searchWord, String dict) {
+    try {
+        File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+        List<String> synonymList = new ArrayList<>();
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+            if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element entryElement = (Element) entryNode;
+                NodeList formList = entryElement.getElementsByTagName("form");
+                for (int j = 0; j < formList.getLength(); j++) {
+                    Node formNode = formList.item(j);
+                    if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element formElement = (Element) formNode;
+                        String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                        if (formWord.equalsIgnoreCase(searchWord)) {
+                            NodeList senseList = entryElement.getElementsByTagName("sense");
+                            for (int k = 0; k < senseList.getLength(); k++) {
+                                Node senseNode = senseList.item(k);
+                                if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element senseElement = (Element) senseNode;
+                                    NodeList citList = senseElement.getElementsByTagName("cit");
+                                    for (int l = 0; l < citList.getLength(); l++) {
+                                        Node citNode = citList.item(l);
+                                        if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                            Element citElement = (Element) citNode;
+                                            String citType = citElement.getAttribute("type");
+                                            if (citType.equals("trans")) {
+                                                NodeList quoteList = citElement.getElementsByTagName("quote");
+                                                if (quoteList != null && quoteList.getLength() > 0) {
+                                                    String transWord = quoteList.item(0).getTextContent();
+                                                    if (!transWord.equalsIgnoreCase(searchWord)) {
+                                                        synonymList.add(formWord);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        String[] synonyms = synonymList.toArray(new String[synonymList.size()]);
+        return synonyms;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}*/
+    /*public static List<String> searchSynonyms(String word, String dict) {
+    List<String> synonyms = new ArrayList<>();
+    try {
+        File file = new File("src/main/resources/" + dict + ".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(file);
+        doc.getDocumentElement().normalize();
+        NodeList nodeList = doc.getElementsByTagName("entry");
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Element entry = (Element) nodeList.item(i);
+            NodeList formList = entry.getElementsByTagName("form");
+            Element form = (Element) formList.item(0);
+            String entryWord = form.getElementsByTagName("orth").item(0).getTextContent();
+            if (entryWord.equalsIgnoreCase(word)) {
+                NodeList senseList = entry.getElementsByTagName("sense");
+                for (int j = 0; j < senseList.getLength(); j++) {
+                    Element sense = (Element) senseList.item(j);
+                    NodeList citList = sense.getElementsByTagName("cit");
+                    for (int k = 0; k < citList.getLength(); k++) {
+                        Element cit = (Element) citList.item(k);
+                        String translation = cit.getElementsByTagName("quote").item(0).getTextContent();
+                        if (translation != null && !translation.isEmpty()) {
+                            NodeList synonymList = doc.getElementsByTagName("quote");
+                            for (int m = 0; m < synonymList.getLength(); m++) {
+                                String synonym = synonymList.item(m).getTextContent();
+                                if (synonym != null && !synonym.isEmpty() && !synonym.equalsIgnoreCase(word) && !synonyms.contains(synonym)) {
+                                    Element synonymEntry = (Element) synonymList.item(m).getParentNode().getParentNode().getParentNode();
+                                    NodeList synonymCitList = synonymEntry.getElementsByTagName("cit");
+                                    for (int n = 0; n < synonymCitList.getLength(); n++) {
+                                        Element synonymCit = (Element) synonymCitList.item(n);
+                                        String synonymTranslation = synonymCit.getElementsByTagName("quote").item(0).getTextContent();
+                                        if (synonymTranslation != null && !synonymTranslation.isEmpty() && translation.equalsIgnoreCase(synonymTranslation)) {
+                                            synonyms.add(synonym);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return synonyms;
+}*/
+/*public static String[] searchSynonyms(String filePath, String[] translations) {
+    ArrayList<String> synonymsList = new ArrayList<>();
+    System.out.println("Translations array length: " + translations.length);
+    try {
+        File inputFile = new File("src/main/resources/" + filePath + ".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+
+        NodeList nList = doc.getElementsByTagName("entry");
+
+        for (int i = 0; i < nList.getLength(); i++) {
+            Node nNode = nList.item(i);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) nNode;
+
+                NodeList transList = eElement.getElementsByTagName("quote");
+                
+                for (int j = 0; j < transList.getLength(); j++) {
+                    Node transNode = transList.item(j);
+                    
+                    String translation = transNode.getTextContent().trim();
+                    
+                    if (Arrays.asList(translations).contains(translation)) {
+                        
+                    Node orthNode = eElement.getElementsByTagName("orth").item(0);
+                    String word = orthNode.getTextContent().trim();
+                    synonymsList.add(word);
+                    System.out.println("Added word: " + word);
+                    break;
+               }
+
+                }
+                
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    String[] synonymsArray = new String[synonymsList.size()];
+    synonymsList.toArray(synonymsArray);
+    return synonymsArray;
+}*/
+   
+   /*
+    public static List<String> findSynonyms(String word, String filePath) {
+        List<String> synonyms = new ArrayList<String>();
+        
+        try {
+            File file = new File("src/main/resources/" + filePath + ".tei");
+            System.out.println(file);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+            
+            NodeList entries = doc.getElementsByTagName("entry");
+            
+            for (int i = 0; i < entries.getLength(); i++) {
+                Element entry = (Element) entries.item(i);
+                
+                NodeList forms = entry.getElementsByTagName("form");
+                String orth;
+                orth = ((Element) forms.item(0)).getElementsByTagName("orth").item(0).getTextContent();
+                
+                if (orth.equalsIgnoreCase(word)) {
+                    NodeList cites = entry.getElementsByTagName("cit");
+                    
+                    for (int j = 0; j < cites.getLength(); j++) {
+                        Element cite = (Element) cites.item(j);
+                        if (cite.getAttribute("type").equals("trans")) {
+                            String synonym = cite.getElementsByTagName("quote").item(0).getTextContent();
+                            NodeList otherForms = entry.getElementsByTagName("orth");
+                            for (int k = 0; k < otherForms.getLength(); k++) {
+                                String form = otherForms.item(k).getTextContent();
+                                if (!form.equalsIgnoreCase(word)) {
+                                    synonyms.add(form);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return synonyms;
+    }*/
+    
+   /* public static void findSynonyms(String input, String filePath) {
+        try{
+            File xmlFile = new File("src/main/resources/" + filePath + ".tei");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+
+            doc.getDocumentElement().normalize();
+            NodeList entries = doc.getElementsByTagName("entry");
+
+            int totalEntries = entries.getLength();
+            int checkedEntries = 0;
+
+            for (int i = 0; i < totalEntries; i++) {
+                Node entryNode = entries.item(i);
+                NodeList forms = entryNode.getChildNodes();
+
+                String orth = "";
+                String synonym = "";
+
+                for (int j = 0; j < forms.getLength(); j++) {
+                    Node formNode = forms.item(j);
+
+                    if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                        NodeList formChildren = formNode.getChildNodes();
+
+                        for (int k = 0; k < formChildren.getLength(); k++) {
+                            Node formChild = formChildren.item(k);
+
+                            if (formChild.getNodeName().equals("orth")) {
+                                orth = formChild.getTextContent();
+                            } else if (formChild.getNodeName().equals("sense")) {
+                                NodeList senseChildren = formChild.getChildNodes();
+
+                                for (int l = 0; l < senseChildren.getLength(); l++) {
+                                    Node senseChild = senseChildren.item(l);
+
+                                    if (senseChild.getNodeType() == Node.ELEMENT_NODE && senseChild.getAttributes().getNamedItem("type").getNodeValue().equals("trans")) {
+                                        synonym = senseChild.getTextContent();
+
+                                        if (orth.equals(input)) {
+                                            System.out.println("Synonym of " + input + ": " + synonym);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                checkedEntries++;
+                int percentDone = (int) ((checkedEntries / (double) totalEntries) * 100);
+                System.out.println("Checked " + percentDone + "% of the entries.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }*/
+
+    
+
+/*public static String[] findWordsInTEI(String filePath, String searchTerm) {
+    ArrayList<String> matchingWords = new ArrayList<String>();
+
+    try {
+        // parse the XML file using DOM
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document doc = dbf.newDocumentBuilder().parse(new File("src/main/resources/" + filePath + ".tei"));
+        doc.getDocumentElement().normalize();
+
+        // find all <orth> elements
+        NodeList nodeList = doc.getElementsByTagName("orth");
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) node;
+                String orthContent = element.getTextContent();
+                // check if the <orth> element's text content contains the search term
+                if (orthContent != null && orthContent.contains(searchTerm)) {
+                    matchingWords.add(orthContent);
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    // convert the ArrayList to an array and return it
+    if (matchingWords.isEmpty()) {
+        System.out.println("No matching words found.");
+        return new String[0]; // return an empty array
+    } else {
+        String[] matchingWordsArray = matchingWords.toArray(new String[matchingWords.size()]);
+        return matchingWordsArray;
+    }
+}/*
+   */
+ /*public static String[] findWordsInTEI(String filePath, String searchTerm) {
+    List<String> matchingWords = new ArrayList<>();
+
+    try {
+        // create XPath factory and object
+        XPathFactory xPathFactory = XPathFactory.newInstance();
+        XPath xPath = xPathFactory.newXPath();
+
+        // parse the XML file using DOM
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document doc = dbf.newDocumentBuilder().parse(new File("src/main/resources/" + filePath + ".tei"));
+        doc.getDocumentElement().normalize();
+
+        // find all <cit> elements with type="trans" that contain the search term
+        String xPathExpression = String.format("//cit[@type='trans' and contains(quote, '%s')]/quote", searchTerm);
+        NodeList nodeList = (NodeList) xPath.evaluate(xPathExpression, doc, XPathConstants.NODESET);
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            String quoteContent = node.getTextContent();
+            if (quoteContent != null) {
+                // add the quote content to the list of matching words
+                matchingWords.add(quoteContent);
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    if (matchingWords.isEmpty()) {
+        System.out.println("No matching words found.");
+        return new String[0]; // return an empty array
+    } else {
+        return matchingWords.toArray(new String[matchingWords.size()]);
+    }
+}
+*/
+    public static String[] findWordsInTEI(String filePath, String searchTerm) {
+    ArrayList<String> matchingWords = new ArrayList<>();
+
+    try {
+        // parse the XML file using DOM
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document doc = dbf.newDocumentBuilder().parse(new File("src/main/resources/" + filePath + ".tei"));
+        doc.getDocumentElement().normalize();
+
+        // find all <cit> elements with type="trans"
+        NodeList nodeList = doc.getElementsByTagName("cit");
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) node;
+                String typeAttribute = element.getAttribute("type");
+                if (typeAttribute != null && typeAttribute.equals("trans")) {
+                    // found a <cit> element with type="trans", now look for the <quote> element inside it
+                    NodeList quoteNodes = element.getElementsByTagName("quote");
+                    for (int j = 0; j < quoteNodes.getLength(); j++) {
+                        Node quoteNode = quoteNodes.item(j);
+                        if (quoteNode.getNodeType() == Node.ELEMENT_NODE) {
+                            Element quoteElement = (Element) quoteNode;
+                            String quoteContent = quoteElement.getTextContent();
+                            if (quoteContent != null && quoteContent.equals(searchTerm)) {
+                                // found a matching <quote> element, now get the parent <form> element
+                                Element formElement = (Element) element.getParentNode().getParentNode();
+                                NodeList orthNodes = formElement.getElementsByTagName("orth");
+                                for (int k = 0; k < orthNodes.getLength(); k++) {
+                                    Node orthNode = orthNodes.item(k);
+                                    if (orthNode.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element orthElement = (Element) orthNode;
+                                        String orthContent = orthElement.getTextContent();
+                                        if (orthContent != null) {
+                                            // found a matching <orth> element, add its content to the list of matching words
+                                            matchingWords.add(orthContent);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    if (matchingWords.isEmpty()) {
+        System.out.println("No matching words found.");
+        return new String[0]; // return an empty array
+    } else {
+        String[] matchingWordsArray = matchingWords.toArray(new String[matchingWords.size()]);
+        return matchingWordsArray;
+    }
+}
+
+
+
+
+    
+    public static void addEntry(String word, String translation, String dict) {
+    try {
+        // Open the XML file for parsing and writing
+        File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        Node root = doc.getDocumentElement();
+
+        // Create the new entry element with its child elements
+        Element entry = doc.createElement("entry");
+        Element form = doc.createElement("form");
+        Element orth = doc.createElement("orth");
+        Element pron = doc.createElement("pron");
+        Element sense = doc.createElement("sense");
+        Element cit = doc.createElement("cit");
+        Element quote = doc.createElement("quote");
+
+        // Set the text content for the word and translation elements
+        orth.setTextContent(word);
+        quote.setTextContent(translation);
+
+        // Append the elements to their parents, creating the structure for the new entry
+        root.appendChild(entry);
+        entry.appendChild(form);
+        form.appendChild(orth);
+        form.appendChild(pron);
+        entry.appendChild(sense);
+        sense.appendChild(cit);
+        cit.appendChild(quote);
+
+        // Set the attributes for the cit element
+        cit.setAttribute("type", "trans");
+
+        // Write the updated XML to the file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(inputFile);
+        transformer.transform(source, result);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+   /* public static void editEntry(String word, String newTranslation, String dict) {
+    try {
+        // Open the XML file for parsing and writing
+        File inputFile = new File("src\\main\\resources\\" + dict + ".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+
+        // Loop through all entry nodes and find the one with matching word
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+            Node orthNode = entryNode.getFirstChild().getFirstChild();
+            String entryWord = orthNode.getTextContent();
+            if (entryWord.equals(word)) {
+                // Update the translation element's text content with newTranslation
+                Node citNode = entryNode.getLastChild().getFirstChild().getFirstChild();
+                entryNode.getLastChild().removeChild(citNode); // remove existing translations
+                String[] translations = newTranslation.split("/");
+                for (String translation : translations) {
+                    Element newCit = doc.createElement("cit");
+                    newCit.setAttribute("type", "trans");
+                    Element newQuote = doc.createElement("quote");
+                    newQuote.setTextContent(translation.trim());
+                    newCit.appendChild(newQuote);
+                    entryNode.getLastChild().appendChild(newCit); // append new translations
+                }
+
+                // Write the updated XML to the file
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(inputFile);
+                transformer.transform(source, result);
+                break;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}*/
+
+   /*public static void editEntry(String word, String newTranslation, String dict) {
+    try {
+        // Open the XML file for parsing and writing
+        File inputFile = new File("src\\main\\resources\\" + dict + ".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+
+        // Loop through all entry nodes and find the one with matching word
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+
+            Node formNode = entryNode.getFirstChild();
+            if (formNode == null) {
+                continue;
+            }
+            Node orthNode = formNode.getFirstChild();
+            if (orthNode == null) {
+                continue;
+            }
+            String entryWord = orthNode.getTextContent();
+            /*System.out.println(entryWord);
+            if (entryWord.equals(word)) {
+                // Find the translation element and update its text content
+                NodeList senseList = entryNode.getChildNodes();
+                for (int j = 0; j < senseList.getLength(); j++) {
+                    Node senseNode = senseList.item(j);
+                    if (senseNode.getNodeName().equals("sense")) {
+                        NodeList citList = senseNode.getChildNodes();
+                        for (int k = 0; k < citList.getLength(); k++) {
+                            Node citNode = citList.item(k);
+                            if (citNode.getNodeName().equals("cit") && citNode.getAttributes().getNamedItem("type").getNodeValue().equals("trans")) {
+                                // Remove existing translation nodes
+                                NodeList quoteList = citNode.getChildNodes();
+                                for (int m = 0; m < quoteList.getLength(); m++) {
+                                    Node quoteNode = quoteList.item(m);
+                                    if (quoteNode.getNodeName().equals("quote")) {
+                                        citNode.removeChild(quoteNode);
+                                    }
+                                }
+                                // Add new translation nodes
+                                String[] translations = newTranslation.split("/");
+                                /*System.out.println("New translations:");*/
+                                /*for (String translation : translations) {
+                                    /*System.out.println(translation.trim());*/
+                                    /*Element newQuote = doc.createElement("quote");
+                                    newQuote.setTextContent(translation.trim());
+                                    citNode.appendChild(newQuote);
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                // Write the updated XML to the file
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(inputFile);
+                transformer.transform(source, result);
+                break;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}*/
+public static void editEntry(String searchWord, String dict, String newTranslation) {
+    try {
+        File inputFile = new File("src\\main\\resources\\"+dict+".tei");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        NodeList entryList = doc.getElementsByTagName("entry");
+        for (int i = 0; i < entryList.getLength(); i++) {
+            Node entryNode = entryList.item(i);
+            if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element entryElement = (Element) entryNode;
+                NodeList formList = entryElement.getElementsByTagName("form");
+                for (int j = 0; j < formList.getLength(); j++) {
+                    Node formNode = formList.item(j);
+                    if (formNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element formElement = (Element) formNode;
+                        String formWord = formElement.getElementsByTagName("orth").item(0).getTextContent();
+                        if (formWord.equalsIgnoreCase(searchWord)) {
+                            NodeList senseList = entryElement.getElementsByTagName("sense");
+                            for (int k = 0; k < senseList.getLength(); k++) {
+                                Node senseNode = senseList.item(k);
+                                if (senseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element senseElement = (Element) senseNode;
+                                    NodeList citList = senseElement.getElementsByTagName("cit");
+                                    for (int l = 0; l < citList.getLength(); l++) {
+                                        Node citNode = citList.item(l);
+                                        if (citNode.getNodeType() == Node.ELEMENT_NODE) {
+                                            Element citElement = (Element) citNode;
+                                            String citType = citElement.getAttribute("type");
+                                            if (citType.equals("trans")) {
+                                                String transWord = citElement.getElementsByTagName("quote").item(0).getTextContent();
+                                                if (transWord.equalsIgnoreCase(newTranslation)) {
+                                                    return; // new translation already exists
+                                                }
+                                                citElement.getElementsByTagName("quote").item(0).setTextContent(newTranslation);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Save the updated XML file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        StreamResult result = new StreamResult(new File("src\\main\\resources\\"+dict+".tei"));
+        transformer.transform(source, result);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+/*public class Translator {
+    private static final String[] LANGUAGES = {"eng", "fra", "deu", "ita", "swe", "ell", "tur"};
+    private static final String ENGLISH = "eng";
+    private HashMap<String, HashMap<String, String>> dictionaries;
+
+    public Translator() {
+        dictionaries = new HashMap<>();
+        for (String language : LANGUAGES) {
+            dictionaries.put(language, loadDictionary(language));
+        }
+    }
+
+    public ArrayList<String> crossSearch(String inputWord, String givenLanguage) {
+        ArrayList<String> translations = new ArrayList<>();
+
+        // Search for translations in the given language's dictionary
+        if (dictionaries.containsKey(givenLanguage)) {
+            String translation = dictionaries.get(givenLanguage).get(inputWord);
+            if (translation != null) {
+                translations.add(translation);
+            }
+        }
+
+        // If there are no translations in the given language's dictionary, try using English as a bridge language
+        if (translations.isEmpty()) {
+            String englishTranslation = dictionaries.get(ENGLISH).get(inputWord);
+            if (englishTranslation != null) {
+                for (String language : LANGUAGES) {
+                    if (!language.equals(ENGLISH)) {
+                        String translation = dictionaries.get(language).get(englishTranslation);
+                        if (translation != null) {
+                            translations.add(translation);
+                        }
+                    }
+                }
+            }
+        }
+
+        return translations;
+    }
+
+    private HashMap<String, String> loadDictionary(String language) {
+        HashMap<String, String> dictionary = new HashMap<>();
+        String fileName = language.equals(ENGLISH) ? ENGLISH : language + "-" + ENGLISH;
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName + ".txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                dictionary.put(parts[0], parts[1]);
+            }
+        } catch (IOException e) {
+            System.err.println("Could not load dictionary " + fileName + ".txt");
+        }
+        return dictionary;
+    }
+}*/
+   public class Translator {
+
+    private Map<String, Map<String, ArrayList<String>>> dictionaries;
+
+    public Translator() {
+        dictionaries = new HashMap<>();
+    }
+
+    public ArrayList<String> crossSearch(String word, String givenLanguage, String targetLanguage) {
+    // Initialize the list of translations
+    ArrayList<String> translations = new ArrayList<String>();
+
+    // Check if the target language has a dictionary
+    if (!dictionaries.containsKey(targetLanguage)) {
+        System.out.println("Error: no dictionary found for language " + targetLanguage);
+        return translations;
+    }
+
+    // First, try to find direct translations of the input word in the target language
+    ArrayList<String> targetTranslations = dictionaries.get(targetLanguage).getOrDefault(word, new ArrayList<String>());
+    translations.addAll(targetTranslations);
+
+    // If no direct translations were found, try to translate the input word to English and use those translations as a bridge
+    if (translations.isEmpty()) {
+        ArrayList<String> engTranslations = new ArrayList<String>();
+        if (dictionaries.containsKey(givenLanguage)) {
+            engTranslations = dictionaries.get(givenLanguage).getOrDefault(word, new ArrayList<String>());
+        }
+        if (engTranslations.isEmpty()) {
+            engTranslations = dictionaries.get("eng").getOrDefault(givenLanguage + ":" + word, new ArrayList<String>());
+        }
+        for (String engTranslation : engTranslations) {
+            ArrayList<String> engTargetTranslations = dictionaries.get("eng").getOrDefault(targetLanguage + ":" + engTranslation, new ArrayList<String>());
+            translations.addAll(engTargetTranslations);
+        }
+    }
+
+    return translations;
+}
+
+    public void loadDictionary(String filename) {
+    try {
+        // Parse the dictionary file as an XML document
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new File(filename));
+
+        // Get the root element of the document
+        Element root = doc.getDocumentElement();
+
+        // Get the "xml:lang" attribute of the root element
+        String language = root.getAttribute("xml:lang");
+
+        // Create a new dictionary for the given language
+        HashMap<String, ArrayList<String>> dictionary = new HashMap<String, ArrayList<String>>();
+        dictionaries.put(language, dictionary);
+
+        // Iterate over the "entry" elements in the document
+        NodeList entries = root.getElementsByTagName("entry");
+        for (int i = 0; i < entries.getLength(); i++) {
+            Element entry = (Element) entries.item(i);
+
+            // Get the "form" elements of the entry
+            NodeList forms = entry.getElementsByTagName("form");
+            for (int j = 0; j < forms.getLength(); j++) {
+                Element form = (Element) forms.item(j);
+
+                // Get the word form of the form
+                String word = form.getElementsByTagName("orth").item(0).getTextContent();
+
+                // Get the "sense" elements of the entry
+                NodeList senses = entry.getElementsByTagName("sense");
+                for (int k = 0; k < senses.getLength(); k++) {
+                    Element sense = (Element) senses.item(k);
+
+                    // Get the "translation" elements of the sense
+                    NodeList translations = sense.getElementsByTagName("translation");
+                    for (int l = 0; l < translations.getLength(); l++) {
+                        Element translation = (Element) translations.item(l);
+
+                        // Get the target language of the translation
+                        String targetLanguage = translation.getAttribute("xml:lang");
+
+                        // Get the translation text
+                        String translationText = translation.getTextContent();
+
+                        // Add the translation to the dictionary
+                        if (!dictionary.containsKey(targetLanguage)) {
+                            dictionary.put(targetLanguage, new ArrayList<String>());
+                        }
+                        dictionary.get(targetLanguage).add(translationText);
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+}
+   }
+    
+
+
+ 
+
+
+    
+
+
+
+
+    /**
+     * Creates new form Jframe1
+     */
+    public Jframe1() {
+        initComponents();
+        
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jButton7 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jTextField4 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
+        jTextField10 = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
+        jButton10 = new javax.swing.JButton();
+        jButton11 = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea4 = new javax.swing.JTextArea();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextArea5 = new javax.swing.JTextArea();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTextArea6 = new javax.swing.JTextArea();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTextArea7 = new javax.swing.JTextArea();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTextArea8 = new javax.swing.JTextArea();
+        jScrollPane9 = new javax.swing.JScrollPane();
+        jTextArea9 = new javax.swing.JTextArea();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        jTextArea10 = new javax.swing.JTextArea();
+
+        jTextArea3.setColumns(20);
+        jTextArea3.setRows(5);
+        jScrollPane3.setViewportView(jTextArea3);
+
+        jButton7.setText("jButton7");
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setFont(new java.awt.Font("Gill Sans Ultra Bold", 0, 14)); // NOI18N
+        jLabel1.setText("Translator 1.0.1");
+
+        jLabel2.setText("Base Language");
+
+        jLabel3.setText("English");
+
+        jLabel4.setText("Modern Greek");
+
+        jLabel5.setText("Turkish");
+
+        jLabel6.setText("Translations");
+
+        jLabel7.setText("Synonyms:");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "eng", "fra", "deu", "tur", "ita", "swe", "ell" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField4ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("Translate");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "eng", "fra", "deu", "ita", "ell", "tur", "swe" }));
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setText("Target Language");
+
+        jLabel9.setText("Word: ");
+
+        jButton2.setText("Help");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("French");
+
+        jLabel11.setText("Swedish");
+
+        jLabel12.setText("German");
+
+        jLabel13.setText("Italian");
+
+        jButton4.setText("Confirm ");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jTextField10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField10ActionPerformed(evt);
+            }
+        });
+
+        jLabel14.setText("Dictionary:");
+
+        jLabel15.setText("Results:");
+
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jScrollPane2.setViewportView(jTextArea2);
+
+        jButton5.setText("Find Synonyms");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setText("RESET");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jButton8.setText("Add ");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+
+        jButton9.setText("Edit");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
+
+        jButton10.setText("Translate to All");
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton10ActionPerformed(evt);
+            }
+        });
+
+        jButton11.setText("Cross Search");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        jTextArea4.setColumns(20);
+        jTextArea4.setRows(5);
+        jScrollPane4.setViewportView(jTextArea4);
+
+        jTextArea5.setColumns(20);
+        jTextArea5.setRows(5);
+        jScrollPane5.setViewportView(jTextArea5);
+
+        jTextArea6.setColumns(20);
+        jTextArea6.setRows(5);
+        jScrollPane6.setViewportView(jTextArea6);
+
+        jTextArea7.setColumns(20);
+        jTextArea7.setRows(5);
+        jScrollPane7.setViewportView(jTextArea7);
+
+        jTextArea8.setColumns(20);
+        jTextArea8.setRows(5);
+        jScrollPane8.setViewportView(jTextArea8);
+
+        jTextArea9.setColumns(20);
+        jTextArea9.setRows(5);
+        jScrollPane9.setViewportView(jTextArea9);
+
+        jTextArea10.setColumns(20);
+        jTextArea10.setRows(5);
+        jScrollPane10.setViewportView(jTextArea10);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(354, 354, 354)
+                .addComponent(jLabel1)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(94, 94, 94)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton10)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton6)
+                        .addGap(175, 175, 175))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel2)
+                                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addGap(18, 18, 18)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel8)
+                                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel9)
+                                                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jButton4)
+                                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING)))
+                                    .addComponent(jButton5)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jLabel15)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(6, 6, 6)
+                                .addComponent(jButton9)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton8)
+                                    .addComponent(jButton11)))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addGap(72, 72, 72))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton2)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(173, 173, 173)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(140, 140, 140)
+                                        .addComponent(jLabel4)))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(43, 43, 43))))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(9, 9, 9)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4)
+                            .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(13, 13, 13)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel11)
+                                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(jLabel12)))
+                            .addComponent(jLabel10)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel2))
+                        .addGap(13, 13, 13)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton4)
+                            .addComponent(jButton11))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel14))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton8)
+                            .addComponent(jButton9)
+                            .addComponent(jButton1))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton10)
+                            .addComponent(jButton6))
+                        .addGap(28, 28, 28)
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton5)
+                            .addComponent(jLabel13))
+                        .addGap(28, 28, 28)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
+                .addComponent(jButton2))
+        );
+
+        pack();
+    }// </editor-fold>                        
+
+   
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+          /*     if (evt.getSource() == jComboBox1) {
+            String selectedOption = (String) jComboBox1.getSelectedItem();
+            String base = selectedOption;
+        } // TODO add your handling code here:*/
+    }                                          
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+      /*String text1 =jTextField4.getText();
+      String text2 =jTextField10.getText();
+      /*jTextField10.setText("");*/
+      
+      /*String[] myResults = searchWord(text1,text2);  
+      for(int i = 0; i< myResults.length; i++){
+          if (myResults[i] != null){
+              jTextArea2.append(myResults[i]);
+              if(i<myResults.length-1){
+                  jTextArea2.append(" / ");
+              }
+          }
+      }  */
+      
+      String text1 = jTextField4.getText();
+      String text2 = jTextField10.getText();
+      String[] myResults = searchWord(text1, text2);  
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < myResults.length; i++) {
+        if (myResults[i] != null) {
+            sb.append(myResults[i]);
+            if (i < myResults.length - 1) {
+                sb.append(" / ");
+                }
+            }
+        }
+        String result = sb.toString().replaceAll("\\s*/(\\s*/)?\\s*$", "");
+        jTextArea2.setText(result);
+      /*String[] mySynonyms = this.getSynonyms();
+      for(int i=0; i< mySynonyms.length; i++){
+          if(mySynonyms[i] !=null){
+              jTextArea1.append(mySynonyms[i]);
+              if(i<mySynonyms.length-1){
+                  jTextArea1.append(" / ");
+              }
+          }
+      }*/
+      // TODO add your handling code here:
+    }                                        
+
+    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+          /*  String mytext= jTextField4.getText(); */   // TODO add your handling code here:
+    }                                           
+
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+          /*      if (evt.getSource() == jComboBox2) {
+            String selectedOption = (String) jComboBox2.getSelectedItem();
+            String target = selectedOption;
+        } // TODO add your handling code here:*/
+    }                                          
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+                                          
+   String helpText = 
+            "1) Choose base and target languages from the dropdown menus on the upper part of the application.\n" +
+            "2) Press the Confirm button.\n" + 
+            "3) Enter the word to translate in the respective text field.\n" + 
+            "4) a) Press Translate to translate.\n" +
+            "   b) Enter a word and its translations in the respective fields then Press Add to add a translation to a word.\n" +
+            "   c) Change the translation of a word in the respective textfield then Press Edit to edit the translation of a word (translations must be separated by \"/\").\n" +
+            "5) Press Reset to reset the text you have generated.\n" +
+            "6) After translating a word, press Find Synonyms to display the synonyms.\n" +
+            "Other functionalities will be updated soon.";
+                
+    JOptionPane.showMessageDialog(this, helpText);
+
+
+    }                                        
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+               String base = (String) jComboBox1.getSelectedItem();
+               String target = (String) jComboBox2.getSelectedItem();
+               formdictname(base, target);
+               
+// TODO add your handling code here:                 
+    }                                        
+
+    private void jTextField10ActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        // TODO add your handling code here:
+    }                                            
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+      /*test*/
+      /*String[] matchingWords = findWordsInTEI("test", "black");
+        for (String word : matchingWords) {
+            System.out.println(word);
+            }*/
+     /*String TextGetter = jTextArea2.getText();
+     String[] TranslationArray = TextGetter.split("/");*/
+     String text1 = jTextField10.getText();
+    String text2 = jTextArea2.getText();
+    String[] searchWords = text2.split("/");
+    StringBuilder sb = new StringBuilder();
+    for (String searchWord : searchWords) {
+        String[] matchingWords = findWordsInTEI(text1, searchWord.trim());
+        
+        for (String matchingWord : matchingWords) {
+            sb.append(matchingWord).append(" / ");
+            System.out.println(matchingWord);       
+        }       
+    }
+    String result = sb.toString().replaceAll("\\s*/\\s*$", ""); // remove the last "/"
+        jTextArea1.setText(result);
+
+            
+      
+     
+    
+     
+      /*StringBuilder sb = new StringBuilder();
+      for (String mySynonym : mySynResults){
+          sb.append(mySynonym).append(" / ");
+      }
+      System.out.println("Synonyms for " + text1 + ":");*/
+     
+      
+       // TODO add your handling code here:
+    }                                        
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        jTextField4.setText("");
+        jTextField10.setText("");
+        jTextArea1.setText("");
+        jTextArea2.setText("");
+        // TODO add your handling code here:
+    }                                        
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        String t1= jTextField4.getText();    
+        String t2= jTextField10.getText();
+        String t3= jTextArea2.getText();
+        addEntry(t1,t3,t2);
+        System.out.println(t1+" now means " + t3 +" in " + t2);// TODO add your handling code here:
+    }                                        
+
+    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+    }                                         
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        String t4= jTextField4.getText();
+        System.out.println(t4);// word
+        String t5= jTextField10.getText(); 
+        System.out.println(t5);// dictionary
+        String t6= jTextArea2.getText();
+        System.out.println(t6);// new translation
+        editEntry(t4,t5,t6);
+        // TODO add your handling code here:
+    }                                        
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {                                          
+       
+        Translator translator = new Translator();
+        translator.loadDictionary("src\\main\\resources\\eng-fra.tei");translator.loadDictionary("src\\main\\resources\\eng-ell.tei");
+        translator.loadDictionary("src\\main\\resources\\eng-deu.tei");translator.loadDictionary("src\\main\\resources\\eng-ita.tei");
+        translator.loadDictionary("src\\main\\resources\\eng-tur.tei");translator.loadDictionary("src\\main\\resources\\eng-swe.tei");
+        translator.loadDictionary("src\\main\\resources\\tur-eng.tei");translator.loadDictionary("src\\main\\resources\\tur-deu.tei");
+        translator.loadDictionary("src\\main\\resources\\swe-deu.tei");translator.loadDictionary("src\\main\\resources\\swe-ita.tei");
+        translator.loadDictionary("src\\main\\resources\\swe-ell.tei");translator.loadDictionary("src\\main\\resources\\swe-fra.tei");
+        translator.loadDictionary("src\\main\\resources\\swe-eng.tei");translator.loadDictionary("src\\main\\resources\\ita-ell.tei");
+        translator.loadDictionary("src\\main\\resources\\ita-deu.tei");translator.loadDictionary("src\\main\\resources\\ita-eng.tei");
+        translator.loadDictionary("src\\main\\resources\\ita-swe.tei");translator.loadDictionary("src\\main\\resources\\ita-tur.tei");
+        translator.loadDictionary("src\\main\\resources\\fra-eng.tei");translator.loadDictionary("src\\main\\resources\\fra-ell.tei");
+        translator.loadDictionary("src\\main\\resources\\fra-deu.tei");translator.loadDictionary("src\\main\\resources\\fra-ita.tei");
+        translator.loadDictionary("src\\main\\resources\\fra-tur.tei");translator.loadDictionary("src\\main\\resources\\fra-swe.tei");
+        translator.loadDictionary("src\\main\\resources\\ell-eng.tei");translator.loadDictionary("src\\main\\resources\\ell-ita.tei");
+        translator.loadDictionary("src\\main\\resources\\ell-fra.tei");translator.loadDictionary("src\\main\\resources\\ell-swe.tei");
+        translator.loadDictionary("src\\main\\resources\\deu-fra.tei");translator.loadDictionary("src\\main\\resources\\deu-ell.tei");
+        translator.loadDictionary("src\\main\\resources\\deu-eng.tei");translator.loadDictionary("src\\main\\resources\\deu-ita.tei");
+        translator.loadDictionary("src\\main\\resources\\deu-tur.tei");translator.loadDictionary("src\\main\\resources\\deu-swe.tei");
+        
+        ArrayList<String> translations = translator.crossSearch("siyah", "tur","swe");
+      System.out.println(translations); 
+        // TODO add your handling code here:
+                
+    }                                         
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Jframe1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> {
+            new Jframe1().setVisible(true);
+        });
+    }
+   /* private static void searchForTerm(String keyword) {
+    String file1 = "C:\\Users\\efe\\Documents\\NetBeansProjects\\gradleproject1\\tur-engtest.txt";
+    String file2 = "C:\\Users\\efe\\Documents\\NetBeansProjects\\gradleproject1\\eng-turtest.txt";
+
+    try (BufferedReader br1 = new BufferedReader(new FileReader(file1));
+         BufferedReader br2 = new BufferedReader(new FileReader(file2))) {
+
+        String line;
+        while ((line = br1.readLine()) != null) {
+            if (search(line, br2, keyword)) {
+                System.out.println(line + " found in " + file2);
+          
+                return;
+            }
+        }
+        System.out.println(keyword + " not found in " + file2);
+    } catch (IOException e) {
+    }
+}*/
+
+    // Variables declaration - do not modify                     
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane10;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
+    private javax.swing.JScrollPane jScrollPane9;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea10;
+    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JTextArea jTextArea4;
+    private javax.swing.JTextArea jTextArea5;
+    private javax.swing.JTextArea jTextArea6;
+    private javax.swing.JTextArea jTextArea7;
+    private javax.swing.JTextArea jTextArea8;
+    private javax.swing.JTextArea jTextArea9;
+    private javax.swing.JTextField jTextField10;
+    private javax.swing.JTextField jTextField4;
+    // End of variables declaration                   
+}
+/* will add functions and attach them to the related jframe areas in this upcoming weeks
+got some of the methods and how to implement them figured out.
+then going to check if works and finally we'll adjust the UI to make it nicer, better.
+*/
